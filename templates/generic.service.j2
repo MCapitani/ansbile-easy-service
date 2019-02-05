@@ -1,0 +1,14 @@
+[Unit]
+Description={{ service_name }}
+After=syslog.target network-online.target
+
+[Service]
+User={{ service.user }}
+WorkingDirectory={{ service_working_dir }}
+Restart={{ service_restart }}
+ExecStart={{ service_command }}
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,106 @@
+---
+#    Copyright 2019 Nextworks S.r.l.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
+- name: Variables check
+  fail:
+    msg: "Variable '{{ item }}' is not defined"
+  when: item not in vars
+  with_items:
+    - service_name
+    - bin_src
+    ## defaulted: ##
+    # unit_file_folder: /lib/systemd/system
+    # bin_dest: /usr/share
+    # config_src: (Optional)
+    # config_templates: (Optional, list)
+    # config_dest: "{{ '/etc/' + service_name }}"
+    # unit_file_name: "{{ service_name  + '.service' }}"
+    #
+    # service_user: root
+    # service_state: started
+    # service_enabled: yes
+    # service_working_dir: "{{ bin_folder }}"
+    # service_restart: on-failure
+
+- name: Make config folder
+  when: (config_src is defined) or (config_templates is defined)
+  become: yes
+  become_user: root
+  file:
+    path: "{{ config_dest }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_user }}"
+
+- name: Copy config
+  when: config_src is defined
+  become: yes
+  become_user: "{{ service_user }}"
+  copy:
+    src: "{{ config_src }}"
+    dest: "{{ config_dest }}"
+  register: copy_config_out
+
+- name: Copy config templates
+  become: yes
+  become_user: "{{ service_user }}"
+  when: config_templates is defined
+  with_items: "{{ config_templates }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+
+- name: Make bin folder
+  become: yes
+  become_user: root
+  file:
+    path: "{{ bin_dest | dirname }}"
+    state: directory
+    owner: "{{ service_user }}"
+    group: "{{ service_user }}"
+
+- name: Copy bin
+  become: yes
+  become_user: "{{ service_user }}"
+  copy:
+    src: "{{ bin_src }}"
+    dest: "{{ bin_dest }}"
+    owner: "{{ service_user }}"
+    group: "{{ service_user }}"
+    mode: u=rwx,g=rwx,o=rx
+  register: copy_bin_out
+
+- name: Create service file
+  become: yes
+  become_user: root
+  template:
+    src: generic.service.j2
+    dest: "{{ unit_file_folder + unit_file_name }}"
+  vars:
+    service:
+      name: "5gt Monitoring Configuration Manager"
+      user: "{{ service_user }}"
+      command: "{{ service_command }}"
+      workingDir: "{{ service_working_dir }}"
+  register: create_file_out
+
+- name: Manage service configuration
+  become: yes
+  become_user: root
+  service:
+    state: "{{ service_state }}"
+    enabled: "{{ service_enabled }}"
+    name: "{{ unit_file_name }}"
+    daemon_reload: "{{ 'yes' if create_file_out.changed else 'no' }}"

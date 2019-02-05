@@ -1,0 +1,25 @@
+galaxy_info:
+  role_name: easy-service
+  author: nextworks
+  description: Creates a new systemd service running a given executable, easily
+  company: Nextworks s.r.l.
+
+  license: Apache-v2.0
+
+  min_ansible_version: 2.4
+
+  github_branch: master
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+        - yakkety
+        - zesty
+        - artful
+        - bionic
+        - cosmic
+
+  galaxy_tags:
+    - systemd
+    - services

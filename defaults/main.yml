@@ -1,0 +1,13 @@
+---
+# defaults file for make-systemd-service
+unit_file_folder: /lib/systemd/system/
+bin_dest: /usr/share/
+config_dest: "{{ '/etc/' + service_name + '/' }}"
+unit_file_name: "{{ service_name  + '.service' }}"
+
+service_command: "{% if (bin_dest | basename) == '' %}{{bin_dest + bin_src | basename }}{% else %}{{ bin_dest }}{% endif %}"
+service_user: root
+service_state: started
+service_enabled: yes
+service_working_dir: "{{ bin_dest | dirname }}"
+service_restart: on-failure
