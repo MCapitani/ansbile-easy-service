@@ -1,6 +1,6 @@
 galaxy_info:
   role_name: easy-service
-  author: nextworks
+  author: Marco Capitani
   description: Creates a new systemd service running a given executable, easily
   company: Nextworks s.r.l.
 

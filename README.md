@@ -76,7 +76,7 @@ Creating a service which simply runs a binary is extremely simple:
       become: yes
       become_user: root
       import_role:
-        name: nextworks.easy-service
+        name: mcapitani.easy-service
       vars:
         service_name: my-service
         bin_src: "{{ bin_local_path }}"
@@ -87,7 +87,7 @@ nonetheless, there are several configuration options available:
       become: yes
       become_user: root
       import_role:
-        name: nextworks.easy-service
+        name: mcapitani.easy-service
       vars:
         service_name: my-complex-service
         service_user: mcs-user
